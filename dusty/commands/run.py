@@ -19,6 +19,7 @@
     Command: run
 """
 
+import os
 import pkg_resources
 
 from dusty.tools import log, actions
@@ -112,7 +113,8 @@ class Command(ModuleModel, CommandModel):
         log.debug("Done")
         # Fail quality gate if needed
         if context.get_meta("fail_quality_gate", False):
-            raise RuntimeError("Quality gate failed")
+            log.warning("Quality gate failed, exiting with return code 1")
+            os._exit(1)  # pylint: disable=W0212
 
     @staticmethod
     def _fill_context_meta(context):  # pylint: disable=R0912
