@@ -110,6 +110,9 @@ class Command(ModuleModel, CommandModel):
         context.state.save()
         reporting.flush()
         log.debug("Done")
+        # Fail quality gate if needed
+        if context.get_meta("fail_quality_gate", False):
+            raise RuntimeError("Quality gate failed")
 
     @staticmethod
     def _fill_context_meta(context):  # pylint: disable=R0912
