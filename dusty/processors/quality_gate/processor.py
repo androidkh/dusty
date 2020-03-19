@@ -52,6 +52,15 @@ class Processor(DependentModuleModel, ProcessorModel):
             if severity not in results_by_severity:
                 results_by_severity[severity] = 0
             results_by_severity[severity] += 1
+        # Prepare stats data
+        stats_data = dict()
+        for severity in SEVERITIES:
+            stats_data["total"] = "OK"
+            stats_data[severity] = {
+                "findings": results_by_severity.get(severity, "-"),
+                "threshold": thresholds.get(severity, "-"),
+                "status": "OK"
+            }
         # Check quality gate
         for severity in results_by_severity:
             if severity not in thresholds:
@@ -66,6 +75,25 @@ class Processor(DependentModuleModel, ProcessorModel):
                     severity, severity_results, policy_threshold
                 )
                 self.context.set_meta("fail_quality_gate", True)
+                stats_data[severity]["status"] = "FAIL"
+                stats_data["total"] = "FAIL"
+        # Prepare stats
+        stats = list()
+        stats.append("============= Quality gate stats ============")
+        stats.append("Severity  : {:<9} {:<5} {:<7} {:<4} {:<4}".format(
+            *SEVERITIES
+        ))
+        stats.append("Findings  : {:<9} {:<5} {:<7} {:<4} {:<4}".format(
+            *[stats_data[severity]["findings"] for severity in SEVERITIES]
+        ))
+        stats.append("Threshold : {:<9} {:<5} {:<7} {:<4} {:<4}".format(
+            *[stats_data[severity]["threshold"] for severity in SEVERITIES]
+        ))
+        stats.append("Status    : {:<9} {:<5} {:<7} {:<4} {:<4}".format(
+            *[stats_data[severity]["status"] for severity in SEVERITIES]
+        ))
+        stats.append("============= Quality gate: {:<4} ============".format(stats_data["total"]))
+        self.context.set_meta("quality_gate_stats", stats)
 
     @staticmethod
     def fill_config(data_obj):

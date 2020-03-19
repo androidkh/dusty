@@ -111,9 +111,11 @@ class Command(ModuleModel, CommandModel):
         context.state.save()
         reporting.flush()
         log.debug("Done")
+        # Show quality gate statistics if any
+        for line in context.get_meta("quality_gate_stats", list()):
+            log.info(line)
         # Fail quality gate if needed
         if context.get_meta("fail_quality_gate", False):
-            log.warning("Quality gate failed, exiting with return code 1")
             os._exit(1)  # pylint: disable=W0212
 
     @staticmethod
