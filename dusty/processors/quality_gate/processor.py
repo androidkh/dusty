@@ -57,7 +57,7 @@ class Processor(DependentModuleModel, ProcessorModel):
             if severity not in thresholds:
                 continue
             #
-            severity_results = len(results_by_severity[severity])
+            severity_results = results_by_severity[severity]
             policy_threshold = thresholds[severity]
             #
             if severity_results > policy_threshold:
