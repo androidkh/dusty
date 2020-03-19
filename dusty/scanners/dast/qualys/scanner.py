@@ -128,9 +128,10 @@ class Scanner(DependentModuleModel, ScannerModel):
         # Wait for results to finish processing
         if helper.get_scan_results_status(scan_id) == "UNKNOWN":
             log.warning(
-                "Unable to find scan results status. Scan status: %s",
+                "Unable to find scan results status. Scan status: %s. Waiting for 3 minutes",
                 helper.get_scan_status(scan_id)
             )
+            sleep(3 * 60)
         while helper.get_scan_results_status(scan_id) in ["TO_BE_PROCESSED", "PROCESSING"]:
             log.info("Waiting for scan results to finish processing")
             sleep(status_check_interval)
