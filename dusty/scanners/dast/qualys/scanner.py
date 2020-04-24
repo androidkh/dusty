@@ -126,24 +126,9 @@ class Scanner(DependentModuleModel, ScannerModel):
             log.info("Waiting for scan to finish")
             sleep(status_check_interval)
         # Wait for results to finish processing
-        if helper.get_scan_results_status(scan_id) == "UNKNOWN":
-            for _ in range(15):
-                log.warning(
-                    "Unable to find scan results status. Scan status: %s (%s). Waiting for results",
-                    helper.get_scan_status(scan_id), helper.get_scan_summary(scan_id)
-                )
-                sleep(self.config.get("retry_delay", 60.0))
-                if helper.get_scan_results_status(scan_id) != "UNKNOWN":
-                    break
-            # Add scan error
-            error = Error(
-                tool=self.get_name(),
-                error=f"Qualys internal error occured",
-                details="Qualys failed to prepare scan results. " \
-                        "Please re-run the scan and check config if error persists."
-            )
-            self.errors.append(error)
-        while helper.get_scan_results_status(scan_id) in ["TO_BE_PROCESSED", "PROCESSING"]:
+        while helper.get_scan_results_status(scan_id) in [
+                "UNKNOWN", "TO_BE_PROCESSED", "PROCESSING"
+        ]:
             log.info("Waiting for scan results to finish processing")
             sleep(status_check_interval)
         scan_result = helper.get_scan_results_status(scan_id)
